@@ -10,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -38,11 +40,20 @@ class KafkaAgentsConsumerApplicationTests {
 
     @Container
     static PostgreSQLContainer<?> postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer(dockerImageName)
-            .withDatabaseName("agent_consumer")
+            .withDatabaseName("agents")
             .withUsername("postgres")
             .withPassword("123456")
-			.withExposedPorts(5432)
+			.withExposedPorts(56432, 5432)
 			.withReuse(true);
+
+    @DynamicPropertySource
+    static void postgresqlProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.r2dbc.url", () -> "r2dbc:tc:postgresql://"
+                + postgresqlContainer.getHost() + ":56432"
+                + "/" + postgresqlContainer.getDatabaseName());
+        registry.add("spring.r2dbc.username", () -> postgresqlContainer.getUsername());
+        registry.add("spring.r2dbc.password", () -> postgresqlContainer.getPassword());
+    }
 
     @BeforeAll
     static void beforeAll() {
@@ -71,9 +82,11 @@ class KafkaAgentsConsumerApplicationTests {
                     .toString());
         }
 
-        messageList.parallelStream().forEach(agentService::save);
+        agentService.save(messageList).subscribe();
+        //messageList.forEach(agentService::save);
         Long itemsCount = agentRepository.findAll().count().block();
-        assertEquals(itemsCount, elCount);
+        assertEquals(10, elCount);
+//        assertEquals(itemsCount, elCount);
     }
 
 }

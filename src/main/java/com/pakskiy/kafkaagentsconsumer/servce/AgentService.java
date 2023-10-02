@@ -1,7 +1,10 @@
 package com.pakskiy.kafkaagentsconsumer.servce;
 
-import reactor.core.publisher.Mono;
+import com.pakskiy.kafkaagentsconsumer.entity.AgentEntity;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 public interface AgentService {
-    Mono<Void> save(String data);
+    Flux<AgentEntity> save(List<String> data);
 }

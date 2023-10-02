@@ -1,6 +1,5 @@
 package com.pakskiy.kafkaagentsconsumer.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pakskiy.kafkaagentsconsumer.servce.impl.AgentServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +13,6 @@ import java.util.concurrent.CompletableFuture;
 @Component
 @RequiredArgsConstructor
 public class KafkaConsumer {
-    private final ObjectMapper objectMapper;
     private final AgentServiceImpl agentService;
 
     @KafkaListener(
@@ -22,11 +20,8 @@ public class KafkaConsumer {
             groupId = "simple",
             concurrency = "3")
     public void listenEmails(List<String> messages) {
-        messages.parallelStream().forEach(msg -> {
-            log.info("consume message {}", msg);
-            CompletableFuture.runAsync(() -> {
-                agentService.save(msg).subscribe();
-            });
+        CompletableFuture.runAsync(() -> {
+            agentService.save(messages).subscribe();
         });
     }
 }

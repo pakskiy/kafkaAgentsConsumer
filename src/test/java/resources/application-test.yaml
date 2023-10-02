@@ -19,7 +19,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/scripts.xml
-    url: "jdbc:postgresql://localhost:5432/agent_consumer"
+    url: "jdbc:tc:postgresql://localhost:57432/agents"
     user: "postgres"
     password: "123456"
 logging:
