@@ -1,0 +1,32 @@
+server:
+  port: 8090
+spring:
+  main:
+    web-application-type: none
+  r2dbc:
+    url: "r2dbc:postgresql://localhost:56432/agent_consumer"
+    username: "postgres"
+    password: "123456"
+    pool:
+      max-create-connection-time: 2s
+      initial-size: 5
+      max-size: 10
+  kafka:
+    bootstrap-servers: 127.0.0.1:9094
+    consumer:
+      topic:
+        name: message-topic
+  liquibase:
+    enabled: true
+    change-log: classpath:db/scripts.xml
+    url: "jdbc:postgresql://localhost:56432/agent_consumer"
+    user: "postgres"
+    password: "123456"
+logging:
+  level:
+    liquibase: INFO
+    root: INFO
+    org:
+      springframework:
+        data:
+          r2dbc=DEBUG:
